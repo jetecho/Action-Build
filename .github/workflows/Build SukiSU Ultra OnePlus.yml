@@ -345,71 +345,71 @@ jobs:
           curl -LO --retry 5 --retry-delay 2 --retry-connrefused "https://raw.githubusercontent.com/OnePlusOSS/kernel_manifest/oneplus/$cpu/$file.xml"
           mv "$file.xml" ".repo/manifests_fallback/${file}.xml"
 
-      - name: Add SukiSU Ultra
-        run: |
-          cd kernel_workspace/kernel_platform
-          curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s susfs-main
-          cd ./KernelSU
-          KSU_VERSION=$(expr $(/usr/bin/git rev-list --count main) "+" 10700)
-          echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
-          export KSU_VERSION=$KSU_VERSION
-          sed -i "s/DKSU_VERSION=12800/DKSU_VERSION=${KSU_VERSION}/" kernel/Makefile
+      # - name: Add SukiSU Ultra
+      #   run: |
+      #     cd kernel_workspace/kernel_platform
+      #     curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s susfs-main
+      #     cd ./KernelSU
+      #     KSU_VERSION=$(expr $(/usr/bin/git rev-list --count main) "+" 10700)
+      #     echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
+      #     export KSU_VERSION=$KSU_VERSION
+      #     sed -i "s/DKSU_VERSION=12800/DKSU_VERSION=${KSU_VERSION}/" kernel/Makefile
 
-      - name: Apply Patches SukiSU Ultra
-        run: |
-          cd kernel_workspace
-          git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-${{ needs.get-config.outputs.ANDROID_VERSION }}-${{ needs.get-config.outputs.KERNEL_VERSION }}
-          git clone https://github.com/ShirkNeko/SukiSU_patch.git
-          cd kernel_platform
-          echo "正在拉取susfs补丁"
-          cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-${{ needs.get-config.outputs.ANDROID_VERSION }}-${{ needs.get-config.outputs.KERNEL_VERSION }}.patch ./common/
-          cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
-          cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
+      # - name: Apply Patches SukiSU Ultra
+      #   run: |
+      #     cd kernel_workspace
+      #     git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-${{ needs.get-config.outputs.ANDROID_VERSION }}-${{ needs.get-config.outputs.KERNEL_VERSION }}
+      #     git clone https://github.com/ShirkNeko/SukiSU_patch.git
+      #     cd kernel_platform
+      #     echo "正在拉取susfs补丁"
+      #     cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-${{ needs.get-config.outputs.ANDROID_VERSION }}-${{ needs.get-config.outputs.KERNEL_VERSION }}.patch ./common/
+      #     cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
+      #     cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
 
-          if [ "${{ github.event.inputs.ZRAM }}" = "true" ]; then
-          echo "正在拉取zram补丁"
-          cp -r ../SukiSU_patch/other/zram/lz4k/include/linux/* ./common/include/linux
-          cp -r ../SukiSU_patch/other/zram/lz4k/lib/* ./common/lib
-          cp -r ../SukiSU_patch/other/zram/lz4k/crypto/* ./common/crypto
-          cp -r ../SukiSU_patch/other/zram/lz4k_oplus ./common/lib/
-          fi
+      #     if [ "${{ github.event.inputs.ZRAM }}" = "true" ]; then
+      #     echo "正在拉取zram补丁"
+      #     cp -r ../SukiSU_patch/other/zram/lz4k/include/linux/* ./common/include/linux
+      #     cp -r ../SukiSU_patch/other/zram/lz4k/lib/* ./common/lib
+      #     cp -r ../SukiSU_patch/other/zram/lz4k/crypto/* ./common/crypto
+      #     cp -r ../SukiSU_patch/other/zram/lz4k_oplus ./common/lib/
+      #     fi
 
-          cd ./common
-          GKI_V="${{ needs.get-config.outputs.ANDROID_VERSION }}-${{ needs.get-config.outputs.KERNEL_VERSION }}"
-          SUBLEVEL=$(grep '^SUBLEVEL *=' Makefile | head -n1 | cut -d= -f2 | tr -d ' ')
+      #     cd ./common
+      #     GKI_V="${{ needs.get-config.outputs.ANDROID_VERSION }}-${{ needs.get-config.outputs.KERNEL_VERSION }}"
+      #     SUBLEVEL=$(grep '^SUBLEVEL *=' Makefile | head -n1 | cut -d= -f2 | tr -d ' ')
 
-          if [ "$GKI_V" == "android13-5.15" ] && [ "$SUBLEVEL" -lt 123 ]; then
-            echo "修复内核版本5.15.0到5.15.123可能存在的一些遗留问题"
-            curl -Lo fix_5.15.legacy.patch --retry 5 --retry-delay 2 --retry-connrefused https://raw.githubusercontent.com/Numbersf/Action-Build/SukiSU-Ultra/patches/fix_5.15.legacy
-            patch -p1 < fix_5.15.legacy.patch
-            echo "fix_5.15_patch完成"
-          fi
-          KERNEL_VERSION="${{ needs.get-config.outputs.KERNEL_VERSION }}"
-          file="${{ github.event.inputs.FILE }}"
-          TRUSTY_EXISTS="false"
-          if [[ "$KERNEL_VERSION" == "6.6" ]]; then
-            if grep -qr 'common-modules/trusty' "$GITHUB_WORKSPACE/.repo/manifests_fallback/${file}.xml"; then
-              TRUSTY_EXISTS="true"
-            fi
-            echo "trusty_exists=$TRUSTY_EXISTS" >> $GITHUB_OUTPUT
+      #     if [ "$GKI_V" == "android13-5.15" ] && [ "$SUBLEVEL" -lt 123 ]; then
+      #       echo "修复内核版本5.15.0到5.15.123可能存在的一些遗留问题"
+      #       curl -Lo fix_5.15.legacy.patch --retry 5 --retry-delay 2 --retry-connrefused https://raw.githubusercontent.com/Numbersf/Action-Build/SukiSU-Ultra/patches/fix_5.15.legacy
+      #       patch -p1 < fix_5.15.legacy.patch
+      #       echo "fix_5.15_patch完成"
+      #     fi
+      #     KERNEL_VERSION="${{ needs.get-config.outputs.KERNEL_VERSION }}"
+      #     file="${{ github.event.inputs.FILE }}"
+      #     TRUSTY_EXISTS="false"
+      #     if [[ "$KERNEL_VERSION" == "6.6" ]]; then
+      #       if grep -qr 'common-modules/trusty' "$GITHUB_WORKSPACE/.repo/manifests_fallback/${file}.xml"; then
+      #         TRUSTY_EXISTS="true"
+      #       fi
+      #       echo "trusty_exists=$TRUSTY_EXISTS" >> $GITHUB_OUTPUT
 
-            if [[ "$TRUSTY_EXISTS" == "false" ]]; then
-              echo "修复内核版本6.6部分机型susfs的问题"
-              sed -i 's/-32,12 +32,38/-32,11 +32,37/g' 50_add_susfs_in_gki-${{ needs.get-config.outputs.ANDROID_VERSION }}-${KERNEL_VERSION}.patch
-              sed -i '/#include <trace\/hooks\/fs.h>/d' 50_add_susfs_in_gki-${{ needs.get-config.outputs.ANDROID_VERSION }}-${KERNEL_VERSION}.patch
-            fi
-          fi
-          echo "正在打susfs补丁"
-          patch -p1 < 50_add_susfs_in_gki-${{ needs.get-config.outputs.ANDROID_VERSION }}-${{ needs.get-config.outputs.KERNEL_VERSION }}.patch || true
-          echo "susfs_patch完成"
+      #       if [[ "$TRUSTY_EXISTS" == "false" ]]; then
+      #         echo "修复内核版本6.6部分机型susfs的问题"
+      #         sed -i 's/-32,12 +32,38/-32,11 +32,37/g' 50_add_susfs_in_gki-${{ needs.get-config.outputs.ANDROID_VERSION }}-${KERNEL_VERSION}.patch
+      #         sed -i '/#include <trace\/hooks\/fs.h>/d' 50_add_susfs_in_gki-${{ needs.get-config.outputs.ANDROID_VERSION }}-${KERNEL_VERSION}.patch
+      #       fi
+      #     fi
+      #     echo "正在打susfs补丁"
+      #     patch -p1 < 50_add_susfs_in_gki-${{ needs.get-config.outputs.ANDROID_VERSION }}-${{ needs.get-config.outputs.KERNEL_VERSION }}.patch || true
+      #     echo "susfs_patch完成"
 
-      - name: Apply Hide Stuff Patches
-        run: |
-          cd kernel_workspace/kernel_platform/common
-          cp ../../SukiSU_patch/69_hide_stuff.patch ./
-          echo "正在打隐藏应用补丁"
-          patch -p1 -F 3 < 69_hide_stuff.patch
-          echo "隐藏应用_patch完成"
+      # - name: Apply Hide Stuff Patches
+      #   run: |
+      #     cd kernel_workspace/kernel_platform/common
+      #     cp ../../SukiSU_patch/69_hide_stuff.patch ./
+      #     echo "正在打隐藏应用补丁"
+      #     patch -p1 -F 3 < 69_hide_stuff.patch
+      #     echo "隐藏应用_patch完成"
 
       # OGKI转换GKI，无需修改 dtbo 开机
       - name: Apply Convert HMBIRD_OGKI to HMBIRD_GKI
