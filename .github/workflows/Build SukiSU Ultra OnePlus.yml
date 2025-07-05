@@ -237,13 +237,6 @@ jobs:
           rm kernel_platform/common/android/abi_gki_protected_exports_* || echo "No protected exports!"
           rm kernel_platform/msm-kernel/android/abi_gki_protected_exports_* || echo "No protected exports!"
 
-      - name: Copy NameSpace Change
-        run: |
-          cd kernel_workspace
-          echo "Copying namespace from $GITHUB_WORKSPACE/namespace.c to kernel_platform/common/fs/namespace.c"
-          cp "$GITHUB_WORKSPACE/namespace.c" "kernel_platform/common/fs/namespace.c"
-          echo "Copying namespace from $GITHUB_WORKSPACE/namespace.h to kernel_platform/common/fs/namespace.h finish"
-
       # 自定义内核后缀
       - name: Custom Kernel Suffix if set
         if: ${{ github.event.inputs.SUFFIX != '' }}
