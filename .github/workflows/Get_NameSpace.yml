@@ -439,12 +439,8 @@ jobs:
 
 
 
-      - name: Upload ZRAM Module
-        if: ${{ github.event.inputs.ZRAM == 'true' }}
+      - name: Upload NameSpace 
         uses: actions/upload-artifact@v4
         with:
           name: code
           path: kernel_workspace/kernel_platform/common/fs/namespace.c
-
-      - name: Post-build Disk Check
-        run: df -h
