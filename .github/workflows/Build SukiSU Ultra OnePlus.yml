@@ -223,6 +223,7 @@ jobs:
 
       - name: Initialize Repo and Sync
         run: |
+          ls -la $GITHUB_WORKSPACE
           mkdir kernel_workspace && cd kernel_workspace
           repo init -u https://github.com/OnePlusOSS/kernel_manifest.git -b refs/heads/oneplus/${{ needs.get-config.outputs.CPU }} -m ${{ github.event.inputs.FILE }}.xml --depth=1
           repo sync -c -j$(nproc --all) --no-tags --no-clone-bundle --force-sync
