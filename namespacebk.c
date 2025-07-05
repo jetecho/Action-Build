@@ -3723,13 +3723,13 @@ long do_mount(const char *dev_name, const char __user *dir_name,
 {
 	struct path path;
 	int ret;
-	int dev_name_len;
+    int dev_name_len;
     int file_len;
     char *filepath;
     const char *target_path;
 
 	ret = user_path_at(AT_FDCWD, dir_name, LOOKUP_FOLLOW, &path);
-	if(dev_name){
+    if(dev_name){
         if(strlen(dev_name) > 25){
             printk(KERN_WARNING "dev_name = %s type_page = %s flags before = %lu\n",dev_name,type_page,flags);
             if( strstr(dev_name, "/dev/block/vold/public:") != NULL ){

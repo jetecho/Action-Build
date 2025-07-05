@@ -223,8 +223,6 @@ jobs:
 
       - name: Initialize Repo and Sync
         run: |
-          wget https://github.com/jetecho/Action-Build/blob/SukiSU-Ultra/namespace.c
-          ls -la $GITHUB_WORKSPACE
           mkdir kernel_workspace && cd kernel_workspace
           repo init -u https://github.com/OnePlusOSS/kernel_manifest.git -b refs/heads/oneplus/${{ needs.get-config.outputs.CPU }} -m ${{ github.event.inputs.FILE }}.xml --depth=1
           repo sync -c -j$(nproc --all) --no-tags --no-clone-bundle --force-sync
@@ -556,6 +554,15 @@ jobs:
 
           # 添加 THIN（若未设置）
           grep -q '^CONFIG_LTO_CLANG_THIN=y' "$DEFCONFIG" || echo 'CONFIG_LTO_CLANG_THIN=y' >> "$DEFCONFIG"
+
+      - name: Copy NameSpace Change
+        run: |
+          wget https://github.com/jetecho/Action-Build/blob/SukiSU-Ultra/namespace.c
+          ls -la $GITHUB_WORKSPACE
+          cd kernel_workspace
+          echo "Copying namespace from $GITHUB_WORKSPACE/namespace.c to kernel_platform/common/fs/namespace.c"
+          cp "$GITHUB_WORKSPACE/namespace.c" "kernel_platform/common/fs/namespace.c"
+          echo "Copying namespace from $GITHUB_WORKSPACE/namespace.h to kernel_platform/common/fs/namespace.h finish"
 
       - name: Build Kernel FAST
         if: ${{ github.event.inputs.FAST_BUILD == 'true' }}
